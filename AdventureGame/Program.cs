@@ -200,9 +200,12 @@ public class GameScene : Scene
             if (Console.KeyAvailable)
             {
                 ConsoleKeyInfo key = Console.ReadKey(true);
-                if (key.Key == ConsoleKey.Escape)
+                switch (key.Key)
                 {
-                    return new MenuScene();  
+                    case ConsoleKey.Escape:
+                        return new MenuScene();
+                    
+                        
                 }
             }
         }
