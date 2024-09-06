@@ -71,9 +71,11 @@ public class MenuScene : Scene
                     ConsoleKeyInfo key = Console.ReadKey(true);
                     switch (key.Key)
                     {
+                        case ConsoleKey.UpArrow:
                         case ConsoleKey.W:
                             selectedButtonIndex--;
                             break;
+                        case ConsoleKey.DownArrow:
                         case ConsoleKey.S:
                             selectedButtonIndex++;
                             break;
