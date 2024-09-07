@@ -197,7 +197,7 @@ public class GameScene : Scene
     private int _playerX = 1;
     private int _playerchunk = 00;
     Dictionary<int,char[,]> Chunk = new Dictionary<int, char[,]>();
-    
+    List<int> keys = new List<int>();
     public void GenerateChunk(int height,int width,int key)
     {
         
@@ -210,7 +210,7 @@ public class GameScene : Scene
             {
                 int randValue = rand.Next(0, 100);
 
-                if (randValue < 20)
+                if (randValue < 10)
                 {
                     chunk[x, y] = '■';
                 }
@@ -220,7 +220,22 @@ public class GameScene : Scene
                 }
             }
         }
-        Chunk.Add(key,chunk);
+        
+        bool existchunkkey = false;
+        for (int i = 0;i < keys.Count;i++)
+        {
+            if (keys[i] == key)
+            {
+                existchunkkey = true;
+            }
+        }
+        
+        if (existchunkkey == false)
+        {
+            Chunk.Add(key, chunk);
+            keys.Add(key);
+        }
+        
     }
     public void PrintChunk(int height,int width,int key)
     {
@@ -256,15 +271,20 @@ public class GameScene : Scene
 
             switch (key.Key)
             {
+
+                case ConsoleKey.UpArrow:
                 case ConsoleKey.W:
                     MovePlayer(0, -1);
                     break;
+                case ConsoleKey.DownArrow:
                 case ConsoleKey.S:
                     MovePlayer(0, 1);
                     break;
+                case ConsoleKey.LeftArrow:
                 case ConsoleKey.A:
                     MovePlayer(-1, 0);
                     break;
+                case ConsoleKey.RightArrow:
                 case ConsoleKey.D:
                     MovePlayer(1, 0);
                     break;
@@ -279,6 +299,42 @@ public class GameScene : Scene
     {
         int newX = _playerX + dx;
         int newY = _playerY + dy;
+        if (newY == 0)
+        {
+            GenerateChunk(8,8,_playerchunk+1);
+        }
+        if (newY == 7)
+        {
+            GenerateChunk(8, 8, _playerchunk - 1);
+        }
+        if (newX == 0)
+        {
+            GenerateChunk(8, 8, _playerchunk - 10);
+        }
+        if (newX == 7)
+        {
+            GenerateChunk(8, 8, _playerchunk + 10);
+        }
+        if (newY > 7)
+        {
+            _playerchunk -= 1;
+            newY = 0;
+        }
+        if (newY < 0)
+        {
+            _playerchunk += 1;
+            newY = 7;
+        }
+        if (newX > 7)
+        {
+            _playerchunk += 10;
+            newX = 0;
+        }
+        if (newX < 0)
+        {
+            _playerchunk -= 10;
+            newX = 7;
+        }
         if (Chunk[_playerchunk][newY,newX] != '■')
         {
             _playerX = newX;
