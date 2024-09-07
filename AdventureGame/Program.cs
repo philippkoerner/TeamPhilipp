@@ -191,23 +191,130 @@ public class AboutScene : Scene
 
 public class GameScene : Scene
 {
-    public override Scene Render()
+    long lastRefreshTime = 0;
+    double refreshRate = 1.0 / 25.0;
+    private int _playerY = 1;
+    private int _playerX = 1;
+    private int _playerchunk = 00;
+    Dictionary<int,char[,]> Chunk = new Dictionary<int, char[,]>();
+    
+    public void GenerateChunk(int height,int width,int key)
     {
-        Console.WriteLine("Game has started!");
-        Console.WriteLine("Press Esc to return to the menu.");
-        while (true)
+        
+        char[,] chunk = new char[height,width];
+        Random rand = new Random();
+
+        for (int y = 0; y < height; y++)
         {
-            if (Console.KeyAvailable)
+            for (int x = 0; x < width; x++)
             {
-                ConsoleKeyInfo key = Console.ReadKey(true);
-                switch (key.Key)
+                int randValue = rand.Next(0, 100);
+
+                if (randValue < 20)
                 {
-                    case ConsoleKey.Escape:
-                        return new MenuScene();
-                    
-                        
+                    chunk[x, y] = '■';
+                }
+                else
+                {
+                    chunk[x, y] = ' ';
                 }
             }
         }
+        Chunk.Add(key,chunk);
     }
+    public void PrintChunk(int height,int width,int key)
+    {
+        
+        for (int y = 0;y < height;y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+
+                if (x == _playerX && y == _playerY)
+                {
+                    Console.BackgroundColor = ConsoleColor.Green;
+                    Console.Write("*");
+                    Console.ResetColor();
+                    Console.Write(" ");
+                    Console.ResetColor();
+                }
+                else
+                {
+                    Console.Write(Chunk[_playerchunk][y, x] + " ");
+                   
+                }
+                
+            }
+            Console.WriteLine();
+        }
+    }
+    private void HandleInput(ref bool isRunning)
+    {
+        if (Console.KeyAvailable)
+        {
+            ConsoleKeyInfo key = Console.ReadKey(true);
+
+            switch (key.Key)
+            {
+                case ConsoleKey.W:
+                    MovePlayer(0, -1);
+                    break;
+                case ConsoleKey.S:
+                    MovePlayer(0, 1);
+                    break;
+                case ConsoleKey.A:
+                    MovePlayer(-1, 0);
+                    break;
+                case ConsoleKey.D:
+                    MovePlayer(1, 0);
+                    break;
+                case ConsoleKey.Escape:
+                    isRunning = false;
+                    break;
+            }
+        }
+    }
+
+    private void MovePlayer(int dx, int dy)
+    {
+        int newX = _playerX + dx;
+        int newY = _playerY + dy;
+        if (Chunk[_playerchunk][newY,newX] != '■')
+        {
+            _playerX = newX;
+            _playerY = newY;
+        }
+    }
+
+    public override Scene Render()
+    {
+        bool isRunning = true;
+        Console.CursorVisible = false;
+        GenerateChunk(8, 8, _playerchunk);
+        while (isRunning)
+        {
+            TimeSpan elapsedTime = Stopwatch.GetElapsedTime(lastRefreshTime);
+            if (elapsedTime.TotalSeconds > refreshRate)
+            {
+                Console.SetCursorPosition(0, 0);
+                PrintChunk(8, 8, _playerchunk);
+                Console.WriteLine("Use WASD to move, press Esc to return to menu.");
+
+                HandleInput(ref isRunning);
+                if (Console.KeyAvailable)
+                {
+                    ConsoleKeyInfo key = Console.ReadKey(true);
+                    switch (key.Key)
+                    {
+                        case ConsoleKey.Escape:
+                            return new MenuScene();
+
+
+                    }
+                }
+            };
+        }
+        return new MenuScene();
+    }
+
 }
