@@ -196,11 +196,13 @@ public class GameScene : Scene
     private int _playerY = 1;
     private int _playerX = 1;
     private int _playerchunk = 00;
+    int chunksize = 8;
     Dictionary<int,char[,]> Chunk = new Dictionary<int, char[,]>();
     List<int> keys = new List<int>();
-    public void GenerateChunk(int height,int width,int key)
+    public void GenerateChunk(int chunksize,int key)
     {
-        
+        int height = chunksize;
+        int width = chunksize;
         char[,] chunk = new char[height,width];
         Random rand = new Random();
 
@@ -209,7 +211,7 @@ public class GameScene : Scene
             for (int x = 0; x < width; x++)
             {
                 int randValue = rand.Next(0, 100);
-
+                
                 if (randValue < 10)
                 {
                     chunk[x, y] = '■';
@@ -218,6 +220,7 @@ public class GameScene : Scene
                 {
                     chunk[x, y] = ' ';
                 }
+               
             }
         }
         
@@ -245,6 +248,11 @@ public class GameScene : Scene
             for (int x = 0; x < width; x++)
             {
 
+                while (x == _playerX && y == _playerY && Chunk[_playerchunk][y, x] == '■')
+                {
+                    _playerX = Random.Shared.Next(0,chunksize);
+                    _playerY = Random.Shared.Next(0, chunksize);
+                }
                 if (x == _playerX && y == _playerY)
                 {
                     Console.BackgroundColor = ConsoleColor.Green;
@@ -299,21 +307,22 @@ public class GameScene : Scene
     {
         int newX = _playerX + dx;
         int newY = _playerY + dy;
+        int oldchunk = _playerchunk;
         if (newY == 0)
         {
-            GenerateChunk(8,8,_playerchunk+1);
+            GenerateChunk(chunksize,_playerchunk+1);
         }
         if (newY == 7)
         {
-            GenerateChunk(8, 8, _playerchunk - 1);
+            GenerateChunk(chunksize, _playerchunk - 1);
         }
         if (newX == 0)
         {
-            GenerateChunk(8, 8, _playerchunk - 10);
+            GenerateChunk(chunksize, _playerchunk - 10);
         }
         if (newX == 7)
         {
-            GenerateChunk(8, 8, _playerchunk + 10);
+            GenerateChunk(chunksize, _playerchunk + 10);
         }
         if (newY > 7)
         {
@@ -335,10 +344,14 @@ public class GameScene : Scene
             _playerchunk -= 10;
             newX = 7;
         }
-        if (Chunk[_playerchunk][newY,newX] != '■')
+        if (Chunk[_playerchunk][newY, newX] != '■')
         {
             _playerX = newX;
             _playerY = newY;
+        }
+        else 
+        {
+            _playerchunk = oldchunk;
         }
     }
 
@@ -346,7 +359,7 @@ public class GameScene : Scene
     {
         bool isRunning = true;
         Console.CursorVisible = false;
-        GenerateChunk(8, 8, _playerchunk);
+        GenerateChunk(chunksize,_playerchunk);
         while (isRunning)
         {
             TimeSpan elapsedTime = Stopwatch.GetElapsedTime(lastRefreshTime);
