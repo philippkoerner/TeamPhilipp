@@ -5,6 +5,8 @@ VisualStudioVersion = 17.10.35004.147
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdventureGame", "AdventureGame\AdventureGame.csproj", "{2F3764A1-A24D-4823-B381-F103972E6172}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastConsole", "FastConsole\FastConsole.csproj", "{800AFBEE-AABA-4679-9903-C60C162D281A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{2F3764A1-A24D-4823-B381-F103972E6172}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F3764A1-A24D-4823-B381-F103972E6172}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2F3764A1-A24D-4823-B381-F103972E6172}.Release|Any CPU.Build.0 = Release|Any CPU
+		{800AFBEE-AABA-4679-9903-C60C162D281A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{800AFBEE-AABA-4679-9903-C60C162D281A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{800AFBEE-AABA-4679-9903-C60C162D281A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{800AFBEE-AABA-4679-9903-C60C162D281A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
