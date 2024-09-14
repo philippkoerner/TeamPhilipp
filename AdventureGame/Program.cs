@@ -1,25 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-namespace FastConsole.Engine.Core;
 
 class Program
 {
     static void Main()
     {
-        Windows.ForceUpgradeToAnsi();
-        Scene currentScene = new MenuScene();  
+        Scene currentScene = new MenuScene();
         while (currentScene != null)
         {
             Console.Clear();
-            currentScene = currentScene.Render();  
+            currentScene = currentScene.Render();
         }
     }
 }
 
 public abstract class Scene
 {
-    public abstract Scene Render();  
+    public abstract Scene Render();
 }
 
 public class MenuScene : Scene
@@ -85,11 +83,9 @@ public class MenuScene : Scene
                             switch (selectedButtonIndex)
                             {
                                 case 0:
-                                    return new GameScene();  
-
+                                    return new GameScene();
                                 case 1:
-                                    return new AboutScene();  
-
+                                    return new AboutScene();
                                 case 3:
                                     isRunning = false;
                                     Console.WriteLine("Exiting...");
@@ -102,7 +98,7 @@ public class MenuScene : Scene
         }
 
         Console.WriteLine("Good bye");
-        return null;
+        return null!;
     }
 
     private void PrintMessageNTimes(string message, int n)
@@ -162,13 +158,13 @@ public class AboutScene : Scene
                     switch (key.Key)
                     {
                         case ConsoleKey.Escape:
-                            return new MenuScene(); 
+                            return new MenuScene();
                     }
                 }
             }
         }
 
-        return null;
+        return null!;
     }
 
     private void PrintMessageNTimes(string message, int n)
@@ -194,19 +190,33 @@ public class AboutScene : Scene
 public class GameScene : Scene
 {
     long lastRefreshTime = 0;
-    double refreshRate = 1.0 / 25.0;
+    double refreshRate = 1.0 / 10.0;
     private int _playerY = 1;
     private int _playerX = 1;
     private int _playerchunk = 00;
     int chunksize = 8;
-    Dictionary<int,char[,]> Chunk = new Dictionary<int, char[,]>();
+    Dictionary<int, char[,]> Chunk = new Dictionary<int, char[,]>();
     List<int> keys = new List<int>();
-    public void GenerateChunk(int chunksize,int key)
+    List<Enemy> enemies = new List<Enemy>();
+
+    public GameScene()
+    {
+        GenerateInitialEnemies();
+    }
+
+    private void GenerateInitialEnemies()
+    {
+        enemies.Add(new Enemy(2, 2, 'E', Chunk.ContainsKey(_playerchunk) ? Chunk[_playerchunk] : new char[chunksize, chunksize]));
+        enemies.Add(new Enemy(5, 5, 'E', Chunk.ContainsKey(_playerchunk) ? Chunk[_playerchunk] : new char[chunksize, chunksize]));
+    }
+
+    public void GenerateChunk(int chunksize, int key)
     {
         int height = chunksize;
         int width = chunksize;
-        char[,] chunk = new char[height,width];
+        char[,] chunk = new char[height, width];
         Random rand = new Random();
+
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
@@ -221,60 +231,93 @@ public class GameScene : Scene
                 {
                     chunk[x, y] = ' ';
                 }
-
-            }
-        }
-        AddChunk(chunk,key);
-    }
-    public void AddChunk(char[,] chunk,int key)
-    {
-        bool existchunkkey = false;
-        for (int i = 0; i < keys.Count; i++)
-        {
-            if (keys[i] == key)
-            {
-                existchunkkey = true;
             }
         }
 
-        if (existchunkkey == false)
+        if (!Chunk.ContainsKey(key))
         {
             Chunk.Add(key, chunk);
             keys.Add(key);
         }
-    } 
+    }
 
-    public void PrintChunk(int height,int width,int key)
+    private void PrintChunk(int height, int width, int key)
     {
-        
-        for (int y = 0;y < height;y++)
+        if (!Chunk.ContainsKey(key))
+        {
+            Console.WriteLine("Chunk not found!");
+            return;
+        }
+
+        for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
             {
-
-                while (x == _playerX && y == _playerY && Chunk[_playerchunk][y, x] == '■')
-                {
-                    _playerX = Random.Shared.Next(0,chunksize);
-                    _playerY = Random.Shared.Next(0, chunksize);
-                }
                 if (x == _playerX && y == _playerY)
                 {
                     Console.BackgroundColor = ConsoleColor.Green;
                     Console.Write("*");
                     Console.ResetColor();
-                    Console.Write(" ");
-                    Console.ResetColor();
                 }
                 else
                 {
                     Console.Write(Chunk[_playerchunk][y, x] + " ");
-                   
                 }
-                
             }
             Console.WriteLine();
         }
     }
+
+    public override Scene Render()
+    {
+        bool isRunning = true;
+        Console.CursorVisible = false;
+        GenerateChunk(chunksize, _playerchunk);
+
+        foreach (var enemy in enemies)
+        {
+            enemy.UpdateChunk(Chunk[_playerchunk]);
+        }
+
+        while (isRunning)
+        {
+            TimeSpan elapsedTime = Stopwatch.GetElapsedTime(lastRefreshTime);
+            if (elapsedTime.TotalSeconds > refreshRate)
+            {
+                lastRefreshTime = Stopwatch.GetTimestamp();
+                Console.SetCursorPosition(0, 0);
+                PrintChunk(8, 8, _playerchunk);
+
+                foreach (var enemy in enemies)
+                {
+                    enemy.Render();
+                }
+
+                Console.SetCursorPosition(0, 8);
+                Console.WriteLine("Use WASD to move, press Esc to return.");
+
+                HandleInput(ref isRunning);
+
+                foreach (var enemy in enemies)
+                {
+                    enemy.Move();
+                    enemy.UpdateChunk(Chunk[_playerchunk]);
+                }
+
+                foreach (var enemy in enemies)
+                {
+                    if (_playerX == enemy.X && _playerY == enemy.Y)
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Game Over! You were caught by an enemy.");
+                        return new MenuScene();
+                    }
+                }
+            }
+        }
+        return new MenuScene();
+    }
+
     private void HandleInput(ref bool isRunning)
     {
         if (Console.KeyAvailable)
@@ -283,7 +326,6 @@ public class GameScene : Scene
 
             switch (key.Key)
             {
-
                 case ConsoleKey.UpArrow:
                 case ConsoleKey.W:
                     MovePlayer(0, -1);
@@ -312,10 +354,23 @@ public class GameScene : Scene
         int newX = _playerX + dx;
         int newY = _playerY + dy;
         int oldchunk = _playerchunk;
-        GenerateChunk(chunksize,_playerchunk + 1);
-        GenerateChunk(chunksize, _playerchunk - 1);
-        GenerateChunk(chunksize, _playerchunk - 10);
-        GenerateChunk(chunksize, _playerchunk + 10);
+
+        if (newY == 0)
+        {
+            GenerateChunk(chunksize, _playerchunk + 1);
+        }
+        if (newY == 7)
+        {
+            GenerateChunk(chunksize, _playerchunk - 1);
+        }
+        if (newX == 0)
+        {
+            GenerateChunk(chunksize, _playerchunk - 10);
+        }
+        if (newX == 7)
+        {
+            GenerateChunk(chunksize, _playerchunk + 10);
+        }
         if (newY > 7)
         {
             _playerchunk -= 1;
@@ -341,41 +396,75 @@ public class GameScene : Scene
             _playerX = newX;
             _playerY = newY;
         }
-        else 
+        else
         {
             _playerchunk = oldchunk;
         }
     }
+}
 
-    public override Scene Render()
+public class Enemy
+{
+    public int X { get; set; }
+    public int Y { get; set; }
+    private char representation;
+    private long lastMoveTime;
+    private double moveInterval = 1.0 / 2.0;
+    private char[,] chunk;
+
+    public Enemy(int x, int y, char representation, char[,] chunk)
     {
-        bool isRunning = true;
-        Console.CursorVisible = false;
-        GenerateChunk(chunksize,_playerchunk);
-        while (isRunning)
-        {
-            TimeSpan elapsedTime = Stopwatch.GetElapsedTime(lastRefreshTime);
-            if (elapsedTime.TotalSeconds > refreshRate)
-            {
-                Console.SetCursorPosition(0, 0);
-                PrintChunk(8, 8, _playerchunk);
-                Console.WriteLine("Use WASD to move, press Esc to return to menu.");
-
-                HandleInput(ref isRunning);
-                if (Console.KeyAvailable)
-                {
-                    ConsoleKeyInfo key = Console.ReadKey(true);
-                    switch (key.Key)
-                    {
-                        case ConsoleKey.Escape:
-                            return new MenuScene();
-
-
-                    }
-                }
-            };
-        }
-        return new MenuScene();
+        X = x;
+        Y = y;
+        this.representation = representation;
+        lastMoveTime = Stopwatch.GetTimestamp();
+        this.chunk = chunk;
     }
 
+    public void Render()
+    {
+        Console.SetCursorPosition(X * 2, Y);
+        Console.BackgroundColor = ConsoleColor.Red;
+        Console.Write(representation);
+        Console.ResetColor();
+    }
+
+    public void Move()
+    {
+        long currentTime = Stopwatch.GetTimestamp();
+        double elapsedSeconds = (currentTime - lastMoveTime) / (double)Stopwatch.Frequency;
+
+        if (elapsedSeconds > moveInterval)
+        {
+            lastMoveTime = currentTime;
+
+            Random rand = new Random();
+            int direction = rand.Next(4);
+
+            int newX = X;
+            int newY = Y;
+
+            switch (direction)
+            {
+                case 0: newY--; break;
+                case 1: newY++; break;
+                case 2: newX--; break;
+                case 3: newX++; break;
+            }
+
+            newX = Math.Clamp(newX, 0, 7);
+            newY = Math.Clamp(newY, 0, 7);
+
+            if (chunk[newY, newX] != '■')
+            {
+                X = newX;
+                Y = newY;
+            }
+        }
+    }
+
+    public void UpdateChunk(char[,] newChunk)
+    {
+        chunk = newChunk;
+    }
 }
