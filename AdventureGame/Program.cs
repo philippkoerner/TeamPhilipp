@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+namespace FastConsole.Engine.Core;
 
 class Program
 {
     static void Main()
     {
+        Windows.ForceUpgradeToAnsi();
         Scene currentScene = new MenuScene();  
         while (currentScene != null)
         {
@@ -205,13 +207,12 @@ public class GameScene : Scene
         int width = chunksize;
         char[,] chunk = new char[height,width];
         Random rand = new Random();
-
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
             {
                 int randValue = rand.Next(0, 100);
-                
+
                 if (randValue < 10)
                 {
                     chunk[x, y] = '■';
@@ -220,26 +221,29 @@ public class GameScene : Scene
                 {
                     chunk[x, y] = ' ';
                 }
-               
+
             }
         }
-        
+        AddChunk(chunk,key);
+    }
+    public void AddChunk(char[,] chunk,int key)
+    {
         bool existchunkkey = false;
-        for (int i = 0;i < keys.Count;i++)
+        for (int i = 0; i < keys.Count; i++)
         {
             if (keys[i] == key)
             {
                 existchunkkey = true;
             }
         }
-        
+
         if (existchunkkey == false)
         {
             Chunk.Add(key, chunk);
             keys.Add(key);
         }
-        
-    }
+    } 
+
     public void PrintChunk(int height,int width,int key)
     {
         
@@ -308,22 +312,10 @@ public class GameScene : Scene
         int newX = _playerX + dx;
         int newY = _playerY + dy;
         int oldchunk = _playerchunk;
-        if (newY == 0)
-        {
-            GenerateChunk(chunksize,_playerchunk+1);
-        }
-        if (newY == 7)
-        {
-            GenerateChunk(chunksize, _playerchunk - 1);
-        }
-        if (newX == 0)
-        {
-            GenerateChunk(chunksize, _playerchunk - 10);
-        }
-        if (newX == 7)
-        {
-            GenerateChunk(chunksize, _playerchunk + 10);
-        }
+        GenerateChunk(chunksize,_playerchunk + 1);
+        GenerateChunk(chunksize, _playerchunk - 1);
+        GenerateChunk(chunksize, _playerchunk - 10);
+        GenerateChunk(chunksize, _playerchunk + 10);
         if (newY > 7)
         {
             _playerchunk -= 1;
