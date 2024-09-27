@@ -1,8 +1,13 @@
-﻿using System;
+﻿using FastConsole.Engine.Core;
+using FastConsole.Engine.Elements;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 
-class Program
+namespace AdventureGame;
+
+class Programm
 {
     static void Main()
     {
@@ -10,14 +15,14 @@ class Program
         while (currentScene != null)
         {
             Console.Clear();
-            currentScene = currentScene.Render();
+            currentScene = currentScene.Update();
         }
     }
 }
 
 public abstract class Scene
 {
-    public abstract Scene Render();
+    public abstract Scene Update();
 }
 
 public class MenuScene : Scene
@@ -26,7 +31,7 @@ public class MenuScene : Scene
     private string[] menuButtons = new string[] { "Start", "About", "Settings", "Exit" };
     private int selectedButtonIndex = 0;
 
-    public override Scene Render()
+    public override Scene Update()
     {
         bool isRunning = true;
         long lastRefreshTime = 0;
@@ -121,71 +126,6 @@ public class MenuScene : Scene
     }
 }
 
-public class AboutScene : Scene
-{
-    private int boxSize = 32;
-
-    public override Scene Render()
-    {
-        bool isRunning = true;
-        long lastRefreshTime = 0;
-        double refreshRate = 1.0 / 25.0;
-
-        Console.CursorVisible = false;
-        while (isRunning)
-        {
-            TimeSpan elapsedTime = Stopwatch.GetElapsedTime(lastRefreshTime);
-            if (elapsedTime.TotalSeconds > refreshRate)
-            {
-                lastRefreshTime = Stopwatch.GetTimestamp();
-
-                Console.SetCursorPosition(0, 0);
-                PrintMessageNTimes("-", boxSize);
-                Console.WriteLine();
-                PrintSurrondedMessage("|", "Tough Choice", "|", boxSize);
-                Console.WriteLine();
-                PrintSurrondedMessage("|", "Make your choice.", "|", boxSize);
-                Console.WriteLine();
-                PrintSurrondedMessage("|", "Version 0.0", "|", boxSize, 1);
-                Console.WriteLine();
-                PrintMessageNTimes("-", boxSize);
-                Console.WriteLine();
-                Console.WriteLine("Press Esc to return");
-
-                while (Console.KeyAvailable)
-                {
-                    ConsoleKeyInfo key = Console.ReadKey(true);
-                    switch (key.Key)
-                    {
-                        case ConsoleKey.Escape:
-                            return new MenuScene();
-                    }
-                }
-            }
-        }
-
-        return null!;
-    }
-
-    private void PrintMessageNTimes(string message, int n)
-    {
-        for (int i = 0; i < n; i++)
-        {
-            Console.Write(message);
-        }
-    }
-
-    private void PrintSurrondedMessage(string before, string message, string after, int boxSize, double alignment = 0.5)
-    {
-        Console.Write(before);
-        boxSize = boxSize - (before.Length + after.Length);
-        int start = (int)((boxSize - message.Length) * alignment);
-        PrintMessageNTimes(" ", start);
-        Console.Write(message);
-        PrintMessageNTimes(" ", boxSize - start - message.Length);
-        Console.Write(after);
-    }
-}
 
 public class GameScene : Scene
 {
@@ -273,7 +213,7 @@ public class GameScene : Scene
         Console.WriteLine(_playerchunk+ "               ");
     }
 
-    public override Scene Render()
+    public override Scene Update()
     {
         double refreshRate = 1.0 / 25.0;
         long lastRefreshTime = 20;
@@ -463,37 +403,5 @@ public class Enemy
     {
         Chunk = newChunk;
         _newchunkkey = newchunkkey;
-    }
-}
-public class GameOverScene : Scene
-{
-    private int boxSize = 32;
-    public override Scene Render()
-    {
-        bool isRunning = true;
-        long lastRefreshTime = 0;
-        double refreshRate = 1.0 / 25.0;
-        Console.CursorVisible = false;
-        while (isRunning)
-        {
-            TimeSpan elapsedTime = Stopwatch.GetElapsedTime(lastRefreshTime);
-            if (elapsedTime.TotalSeconds > refreshRate)
-            {
-                lastRefreshTime = Stopwatch.GetTimestamp();
-                Console.SetCursorPosition(0, 0);
-                Console.WriteLine("Game over");
-                Console.WriteLine("Press Esc. to return to Menu");
-                while (Console.KeyAvailable)
-                {
-                    ConsoleKeyInfo key = Console.ReadKey(true);
-                    switch (key.Key)
-                    {
-                        case ConsoleKey.Escape:
-                            return new MenuScene();
-                    }
-                }
-            }
-        }
-        return null!;
     }
 }
