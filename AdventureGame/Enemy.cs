@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using FastConsole.Engine.Core;
 using FastConsole.Engine.Elements;
 
 namespace AdventureGame;
@@ -12,6 +13,7 @@ public class Enemy : Element
 
     private Canvas _canvas;
     private Map _map;
+    private double _lastMoveTime;
 
     public Enemy(int health, int damage, Map map)
     {
@@ -42,30 +44,38 @@ public class Enemy : Element
 
     public override void Update()
     {
-        Thread.Sleep(1000);
-        int rnd = Random.Shared.Next(4);
-        Point delta = new Point(0, 0);
-        switch (rnd)
-        {
-            case 0:
-                delta = new Point(0, -1);
-                break;
-            case 1:
-                delta = new Point(-1,0);
-                break;
-            case 2:
-                delta = new Point(0, 1);
-                break;
-            case 3:
-                delta = new Point(1,0);
-                break;
-        }
-        Point newPosition = new Point(Position.X + delta.X, Position.Y + delta.Y);
+        const double MoveDelay = 1;
 
-        if (_map.IsPointInsideMap(newPosition))
+        if (Time.NowSeconds - _lastMoveTime >= MoveDelay)
         {
-            Position = newPosition;
+            _lastMoveTime = Time.NowSeconds;
+            int rnd = Random.Shared.Next(4);
+            Point delta = new Point(0, 0);
+            switch (rnd)
+            {
+                case 0:
+                    delta = new Point(0, -1);
+                    break;
+                case 1:
+                    delta = new Point(-1, 0);
+                    break;
+                case 2:
+                    delta = new Point(0, 1);
+                    break;
+                case 3:
+                    delta = new Point(1, 0);
+                    break;
+            }
+
+            Point newPosition = new Point(Position.X + delta.X, Position.Y + delta.Y);
+
+            if (_map.IsPointInsideMap(newPosition))
+            {
+                Position = newPosition;
+            }
+
         }
+        
         _canvas.Position = new Point(Position.X * 2, Position.Y);
         _canvas.Update();
     }
