@@ -4,16 +4,23 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
-namespace AdventureGame
+using System.Drawing;
+using FastConsole.Engine.Core;
+using FastConsole.Engine.Elements;
+namespace AdventureGame;
+public class GameOverScene : Scene
 {
-    public class GameOverScene : Scene
+    public GameOverScene()
     {
-        private int boxSize = 32;
-        public override Scene Update()
+        Elements.Add(new Text()
         {
-            
-            return null!;
-        }
+            Size = new Size(50, 12),
+            Value = "Adventure game \nVersion: 0.1 \n \nShowcase for GoIteens \n \nPress E to go back...",
+            Alignment = Alignment.Center
+        });
+    }
+    public override void Update()
+    {
+
     }
 }
