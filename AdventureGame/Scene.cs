@@ -1,6 +1,5 @@
 ﻿using FastConsole.Engine.Elements;
 using AdventureGame;
-
 public abstract class Scene
 {
     public List<Element> Elements { get; } = new List<Element>();

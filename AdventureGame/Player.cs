@@ -2,7 +2,6 @@
 using FastConsole.Engine.Elements;
 
 namespace AdventureGame;
-
 public class Player : Element
 {
     public int Health { get; set; }
@@ -25,7 +24,7 @@ public class Player : Element
         {
             CellWidth = 2,
         };
-        _canvas.Fill(Color.Purple, Color.FromArgb(153, 222, 35), '@');
+        _canvas.Fill(Color.Blue, Color.AliceBlue, '@');
     }
 
     public void Move(Point delta)

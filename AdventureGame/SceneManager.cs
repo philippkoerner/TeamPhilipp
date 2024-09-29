@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using AdventureGame;
 using FastConsole.Engine.Core;
 using FastConsole.Engine.Elements;
 
@@ -35,6 +34,7 @@ class SceneManager
         {
             if (Time.TryUpdate())
             {
+                
                 foreach (Scene scene in _sceneToAdd)
                 {
                     _loadedScenes.Insert(0, scene);

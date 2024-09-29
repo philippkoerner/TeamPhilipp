@@ -1,7 +1,6 @@
 ﻿using System.Drawing;
 using FastConsole.Engine.Core;
 using FastConsole.Engine.Elements;
-
 class MenuButton : Element
 {
     public string Name { get; set; }

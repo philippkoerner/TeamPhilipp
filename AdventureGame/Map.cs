@@ -11,11 +11,12 @@ public class Map : Element
 
     public Map()
     {
-        _canvas = new Canvas(new Size(60, 20))
+        _canvas = new Canvas(new Size(20, 20))
         {
             CellWidth = 2
         };
         _canvas.Fill(Color.Green);
+        
     }
 
     public bool IsPointInsideMap(Point point)

@@ -1,66 +1,77 @@
-﻿using System.Diagnostics;
+﻿using System.Drawing;
+using FastConsole.Engine.Elements;
 
 namespace AdventureGame;
-
-public class Enemy
+public class Enemy : Element
 {
-    public int X { get; set; }
-    public int Y { get; set; }
-    private char representation;
-    private long lastMoveTime;
-    private double moveInterval = 1.0 / 2.0;
-    private char[,] Chunk;
-    public int chunkkey;
-    private int _newchunkkey;
-    public Enemy(int x, int y, char representation, char[,] chunk,int chunkkey)
+    public int Health { get; set; }
+    public int MaxHealth { get; set; }
+    public int Damage { get; set; }
+
+    public bool IsAlive => Health > 0;
+
+    private Canvas _canvas;
+    private Map _map;
+
+    public Enemy(int health, int damage, Map map)
     {
-        this.chunkkey = chunkkey;
-        X = x;
-        Y = y;
-        this.representation = representation;
-        lastMoveTime = Stopwatch.GetTimestamp();
-        Chunk = chunk;
-    }
-    public void Render()
-    {
-        if(chunkkey == _newchunkkey) 
+        _map = map;
+        Health = health;
+        MaxHealth = health;
+        Damage = damage;
+
+        _canvas = new Canvas(new Size(1, 1))
         {
-            Console.SetCursorPosition(X * 2, Y);
-            Console.BackgroundColor = ConsoleColor.Red;
-            Console.Write(representation);
-            Console.ResetColor();
+            CellWidth = 2,
+        };
+        _canvas.Fill(Color.Red,Color.White,'@');
+    }
+
+    public void Move(Point delta)
+    {
+        Point newPosition = new Point(Position.X + delta.X, Position.Y + delta.Y);
+        if (_map.IsPointInsideMap(newPosition))
+        {
+            Position = newPosition;
+        }
+        else
+        {
+            
         }
     }
-    public void Move()
+
+    public override void Update()
     {
-        long currentTime = Stopwatch.GetTimestamp();
-        double elapsedSeconds = (currentTime - lastMoveTime) / (double)Stopwatch.Frequency;
-        if (elapsedSeconds > moveInterval)
+        Thread.Sleep(1000);
+        int rnd = Random.Shared.Next(4);
+        Point delta = new Point(0, 0);
+        switch (rnd)
         {
-            lastMoveTime = currentTime;
-            Random rand = new Random();
-            int direction = rand.Next(4);
-            int newX = X;
-            int newY = Y;
-            switch (direction)
-            {
-                case 0: newY--; break;
-                case 1: newY++; break;
-                case 2: newX--; break;
-                case 3: newX++; break;
-            }
-            newX = Math.Clamp(newX, 0, 7);
-            newY = Math.Clamp(newY, 0, 7);
-            if (Chunk[newY, newX] != '■')
-            {
-                X = newX;
-                Y = newY;
-            }
+            case 0:
+                delta = new Point(0, -1);
+                break;
+            case 1:
+                delta = new Point(-1,0);
+                break;
+            case 2:
+                delta = new Point(0, 1);
+                break;
+            case 3:
+                delta = new Point(1,0);
+                break;
         }
+        Point newPosition = new Point(Position.X + delta.X, Position.Y + delta.Y);
+
+        if (_map.IsPointInsideMap(newPosition))
+        {
+            Position = newPosition;
+        }
+        _canvas.Position = new Point(Position.X * 2, Position.Y);
+        _canvas.Update();
     }
-    public void UpdateChunk(char[,] newChunk,int newchunkkey)
+
+    protected override void OnRender()
     {
-        Chunk = newChunk;
-        _newchunkkey = newchunkkey;
+        _canvas.Render();
     }
 }
