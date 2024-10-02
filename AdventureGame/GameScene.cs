@@ -8,24 +8,29 @@ namespace AdventureGame;
 
 public class GameScene : Scene
 {
-    private Map _map;
+    public ChunkManager _chunk;
     private Player _player;
     private Enemy _enemy;
+    public int _chunkkey = 0;
+    private Map map => _chunk.chunks[_chunkkey];
+    private Map _map => map;
     public GameScene()
     {
-        _map = new Map();
-        
-        _player = new Player(10,2, _map);
-        _enemy = new Enemy(20, 2, _map);
-        
+        _chunk = new ChunkManager();
+        _chunk.GenerateChunk(_chunkkey);
+        _chunk.GenerateChunk(_chunkkey + 1);
+        _chunk.GenerateChunk(_chunkkey -1);
+        _chunk.GenerateChunk(_chunkkey - 10);
+        _chunk.GenerateChunk(_chunkkey + 10);
+        _enemy = new Enemy(20, 2, _map,_chunkkey);
+        _player = new Player(10, 2, _map,_chunk);
         Elements.Add(_map);
         Elements.Add(_enemy);
         Elements.Add(_player);
-        
     }
-
     public override void Update()
     {
+        
         while (Console.KeyAvailable)
         {
             ConsoleKeyInfo key = Console.ReadKey(true);
@@ -49,6 +54,14 @@ public class GameScene : Scene
                 case ConsoleKey.RightArrow:
                 case ConsoleKey.D:
                     _player.Move(new Point(1, 0));
+                    break;
+                case ConsoleKey.I:
+                    break;
+                case ConsoleKey.Escape:
+                    OpenScene(new MenuScene());
+                    break;
+                case ConsoleKey.F:
+                    _chunkkey = 1;
                     break;
             }
         }

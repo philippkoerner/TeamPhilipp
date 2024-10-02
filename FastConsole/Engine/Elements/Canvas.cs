@@ -81,7 +81,7 @@ public class Canvas : Element
 			{
 				_cells[x, y] = new Cell()
 				{
-					Value = DefaultCellContent
+					Value = DefaultCellContent,
 				};
 			}
 		}

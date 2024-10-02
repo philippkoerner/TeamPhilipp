@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
 using FastConsole.Engine.Elements;
 
-namespace Game;
+namespace AdventureGame;
 
 public class AboutScene : Scene
 {
@@ -10,7 +10,7 @@ public class AboutScene : Scene
         Elements.Add(new Text()
         {
             Size = new Size(50, 12),
-            Value = "Adventure game \nVersion: 0.1 \n \nShowcase for GoIteens \n \nPress E to go back..."
+            Value = "Adventure game \nVersion: 0.1 \n   \nPress Esc to go back..."
         });
     }
 
@@ -18,7 +18,7 @@ public class AboutScene : Scene
     {
         while (Console.KeyAvailable)
         {
-            if (Console.ReadKey(true).Key == ConsoleKey.E)
+            if (Console.ReadKey(true).Key == ConsoleKey.Escape)
             {
                 CloseScene();
             }

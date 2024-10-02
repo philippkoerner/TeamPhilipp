@@ -9,16 +9,40 @@ public class Map : Element
 
     private Canvas _canvas;
 
+
     public Map()
     {
+        Random rand = new Random();
         _canvas = new Canvas(new Size(20, 20))
         {
             CellWidth = 2
         };
         _canvas.Fill(Color.Green);
+        for (int y = 0; y < 8; y++)
+        {
+            for (int x = 0; x < 8; x++)
+            {
+                int randValue = rand.Next(0, 100);
+                if (randValue <= 20)
+                {
+                    _canvas.FillCell(new Point(x,y),Color.White, Color.White,' ');
+                }
+                else
+                {
+                    _canvas.FillCell(new Point(x, y), Color.Green, Color.Green, ' ');
+                }
+            }
+        }
         
     }
-
+    public void LoadImage(Canvas.Image image)
+    {
+        _canvas.LoadImage(image);
+    }
+    public Canvas.Image GetImage()
+    {
+        return _canvas.GetImage();
+    }
     public bool IsPointInsideMap(Point point)
     {
         if (point.X < 0 || point.Y < 0)

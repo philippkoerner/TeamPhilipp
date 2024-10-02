@@ -4,7 +4,7 @@ using FastConsole.Engine.Elements;
 using AdventureGame;
 class MenuScene : Scene
 {
-    private MenuButton[] _buttons;
+    private Button[] _buttons;
     private int _selectedIndex = 0;
     private int _boxSize = 32;
 
@@ -12,19 +12,19 @@ class MenuScene : Scene
     {
         _buttons = new[]
         {
-            new MenuButton("Start", () =>
+            new Button("Start", () =>
             {
                 OpenScene(new GameScene());
             }),
-            new MenuButton("About", () =>
+            new Button("About", () =>
             {
-                SceneManager.Exit();
+                OpenScene(new AboutScene());
             }),
-            new MenuButton("Settings", () =>
+            new Button("Settings", () =>
             {
-                SceneManager.Exit();
+                OpenScene(new SettingsScene());
             }),
-            new MenuButton("Exit", () =>
+            new Button("Exit", () =>
             {
                 SceneManager.Exit();
             }),
@@ -44,7 +44,7 @@ class MenuScene : Scene
             Position = new Point(0, 4)
         };
         box.Children.AddRange(_buttons);
-        foreach (MenuButton button in _buttons)
+        foreach (Button button in _buttons)
         {
             button.Size = new Size(32, 1);
         }

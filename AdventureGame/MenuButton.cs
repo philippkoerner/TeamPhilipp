@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
 using FastConsole.Engine.Core;
 using FastConsole.Engine.Elements;
-class MenuButton : Element
+class Button : Element
 {
     public string Name { get; set; }
     public bool IsSelected { get; set; }
@@ -9,7 +9,7 @@ class MenuButton : Element
     private Action _action;
     private Text _text;
 
-    public MenuButton(string name, Action action)
+    public Button(string name, Action action)
     {
         Name = name;
         _action = action;
