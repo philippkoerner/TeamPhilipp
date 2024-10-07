@@ -14,23 +14,21 @@ public class Enemy : Element
     private Canvas _canvas;
     private Map _map;
     private double _lastMoveTime;
-    private int _chunkkey;
-    public Enemy(int health, int damage, Map map,int chunkkey)
+   
+    public Enemy(int health, int damage, Map map)
     {
         _map = map;
         Health = health;
         MaxHealth = health;
         Damage = damage;
-        _chunkkey = chunkkey;
+        Position = new Point(1,1);
         _canvas = new Canvas(new Size(1, 1))
         {
             CellWidth = 2,
         };
         _canvas.Fill(Color.Red,Color.White,' ');
+        
     }
-
-   
-
     public override void Update()
     {
         const double MoveDelay = 0.5;
@@ -53,30 +51,17 @@ public class Enemy : Element
                 case 3:
                     delta = new Point(1, 0);
                     break;
+                
+                      
             }
             Point newPosition = new Point(Position.X + delta.X, Position.Y + delta.Y);
-            Canvas.Image image = _map.GetImage();
-            bool IsOneRefrenceTrue = false;
+            
+            
             if (_map.IsPointInsideMap(newPosition))
-            {
-                IsOneRefrenceTrue = true;
-                if (image.Data[newPosition.X, newPosition.Y] != new Canvas.Cell { Background = Color.White, Foreground = Color.White, Value = ' ' })
-                {
-                    IsOneRefrenceTrue = true;
-                }
-                else
-                {
-                    IsOneRefrenceTrue = false;
-                }
-            }
-            else
-            {
-
-            }
-            if (IsOneRefrenceTrue)
             {
                 Position = newPosition;
             }
+            
         }
         
         _canvas.Position = new Point(Position.X * 2, Position.Y);

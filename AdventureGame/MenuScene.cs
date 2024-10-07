@@ -38,7 +38,7 @@ class MenuScene : Scene
 
         FlexBox box = new FlexBox()
         {
-            Size = new Size(32, _buttons.Length),
+            Size = new Size(_boxSize, _buttons.Length),
             GrowDirection = GrowDirection.Vertical,
             AlwaysRecalculate = true,
             Position = new Point(0, 4)

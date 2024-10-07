@@ -1,76 +1,76 @@
 ﻿using System.Drawing;
+using AdventureGame;
+using AdvntureGame;
 using FastConsole.Engine.Elements;
 
-namespace AdventureGame;
-public class Player : Element
+namespace AdventureGame.Elements;
+
+public class Player : Element , IEntity, IFightTurnEndListener
 {
-    
     public int Health { get; set; }
     public int MaxHealth { get; set; }
     public int Damage { get; set; }
+    public bool HasShield => ShieldLifeTime > 0;
 
     public bool IsAlive => Health > 0;
-    private ChunkManager _chunk;
+
+    public int ShieldLifeTime;
     private Canvas _canvas;
     private Map _map;
-    public Player(int health, int damage,Map map,ChunkManager chunk )
+   
+
+    public Player(int health, int damage, Map map)
     {
-        _chunk = chunk;
         _map = map;
         Health = health;
         MaxHealth = health;
         Damage = damage;
-
+       
         _canvas = new Canvas(new Size(1, 1))
         {
             CellWidth = 2,
         };
-        _canvas.Fill(Color.Blue, Color.AliceBlue, ' ');
+        _canvas.Fill(Color.Blue,Color.AliceBlue,'@');
+    }
+
+    public void Heal(int amount)
+    {
+        Health += amount;
+        Health = Math.Min(Health, MaxHealth);
+    }
+
+    public void ReceiveDamage(int amount)
+    {
+        if (HasShield)
+        {
+            amount = (int)Math.Ceiling(0.35 * amount);
+        }
+
+        Health -= amount;
+    }
+
+    public void ActivateShield()
+    {
+        ShieldLifeTime = 3;
+    }
+
+    public Decision MakeTurn(FightingArea fightingArea)
+    {
+        return new Decision("Heal", () =>
+        {
+            Heal(25);
+        });
     }
 
     public void Move(Point delta)
     {
         Point newPosition = new Point(Position.X + delta.X, Position.Y + delta.Y);
-        Canvas.Image image = _map.GetImage();
-        
-        bool IsOneRefrenceTrue = false; 
-        if (_map.IsPointInsideMap(newPosition))
-        {
-            IsOneRefrenceTrue = true;
-            if (image.Data[newPosition.X, newPosition.Y] != new Canvas.Cell { Background = Color.White, Foreground = Color.White, Value = ' ' })
-            {
-                IsOneRefrenceTrue = true;
-            }
-            else
-            {
-                IsOneRefrenceTrue = false;
-            }
-        }
-        else
-        {
-            if ( newPosition.Y < 0)
-            {
-                _chunk._chunkkey -= 1;
-            }
-            if (newPosition.X < 0)
-            {
-                _chunk._chunkkey -= 10;
-            }
-            if ( newPosition.Y >= _map.Size.Height)
-            {
-                _chunk._chunkkey += 1;
-            }
-            if (newPosition.X >= _map.Size.Width)
-            {
-                _chunk._chunkkey += 10;
-            }
 
-        }
-        if (IsOneRefrenceTrue)
+        if (_map.IsPointInsideMap(newPosition))
         {
             Position = newPosition;
         }
-        
+
     }
 
     public override void Update()
@@ -82,5 +82,13 @@ public class Player : Element
     protected override void OnRender()
     {
         _canvas.Render();
+    }
+
+    public void OnTurnEnded()
+    {
+        if (ShieldLifeTime > 0)
+        {
+            ShieldLifeTime--;
+        }
     }
 }

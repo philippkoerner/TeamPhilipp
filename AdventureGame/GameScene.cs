@@ -1,36 +1,34 @@
 ﻿using System.Diagnostics;
 using System.Drawing;
 using AdventureGame;
+using AdventureGame.Elements;
 using FastConsole.Engine.Core;
 using FastConsole.Engine.Elements;
 
 namespace AdventureGame;
-
 public class GameScene : Scene
 {
-    public ChunkManager _chunk;
+    private Map _map;
     private Player _player;
     private Enemy _enemy;
-    public int _chunkkey = 0;
-    private Map map => _chunk.chunks[_chunkkey];
-    private Map _map => map;
     public GameScene()
     {
-        _chunk = new ChunkManager();
-        _chunk.GenerateChunk(_chunkkey);
-        _chunk.GenerateChunk(_chunkkey + 1);
-        _chunk.GenerateChunk(_chunkkey -1);
-        _chunk.GenerateChunk(_chunkkey - 10);
-        _chunk.GenerateChunk(_chunkkey + 10);
-        _enemy = new Enemy(20, 2, _map,_chunkkey);
-        _player = new Player(10, 2, _map,_chunk);
+        _map = new Map();
+        _enemy = new Enemy(100,10,_map);
+        _player = new Player(100, 10, _map);
+
+        
         Elements.Add(_map);
         Elements.Add(_enemy);
         Elements.Add(_player);
     }
+    
     public override void Update()
     {
-        
+        if (_player.Position == _enemy.Position)
+        {
+            OpenScene(new FightingScene(_player));
+        }
         while (Console.KeyAvailable)
         {
             ConsoleKeyInfo key = Console.ReadKey(true);
@@ -54,14 +52,6 @@ public class GameScene : Scene
                 case ConsoleKey.RightArrow:
                 case ConsoleKey.D:
                     _player.Move(new Point(1, 0));
-                    break;
-                case ConsoleKey.I:
-                    break;
-                case ConsoleKey.Escape:
-                    OpenScene(new MenuScene());
-                    break;
-                case ConsoleKey.F:
-                    _chunkkey = 1;
                     break;
             }
         }
